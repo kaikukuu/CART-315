@@ -29,4 +29,9 @@ public class Ball : MonoBehaviour
 
         _rigidBody.AddForce(direction * speed);
     }
+
+    public void ResetBallDirection()
+    {
+        _rigidBody.linearVelocity = new Vector2(-_rigidBody.linearVelocity.x, -_rigidBody.linearVelocity.y);
+    }
 }
