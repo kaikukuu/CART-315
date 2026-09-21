@@ -36,7 +36,7 @@ public class InterferenceManager : MonoBehaviour
     private void TriggerRandomInterference()
     {
         if (gameManager == null) return;
-        int triggeredEvent = Random.Range(0, 4); // Randomly choose an interference event
+        int triggeredEvent = Random.Range(0, 6); // Randomly choose an interference event
         switch (triggeredEvent)
         {
             case 0:

@@ -2,6 +2,7 @@ using System;
 using Unity.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -27,6 +28,9 @@ public class GameManager : MonoBehaviour
 
     public void StartRound()
     {
+        // Clears any prev vals
+        if (CPUPaddle != null) CPUPaddle.paddleDir = 0;
+        if (plyrPaddle != null) plyrPaddle.paddleDir = 0;
         ball.ResetBall();
         ball.AddStartingForce();
     }
@@ -50,8 +54,9 @@ public class GameManager : MonoBehaviour
         int tempScore = score.scorePlayerOne;
         score.scorePlayerOne = score.scorePlayerTwo;
         score.scorePlayerTwo = tempScore;
+        score.UpdateScore();
 
-        Debug.Log("Scores Swapped");
+        Debug.Log("Scores have been swapped!");
     }
 
     public void ScoreMultiplier()
@@ -60,6 +65,8 @@ public class GameManager : MonoBehaviour
         int randomNumMult = Random.Range(2, 11);
         score.scorePlayerOne = randomNumMult * score.scorePlayerOne;
         score.scorePlayerTwo = randomNumMult * score.scorePlayerTwo;
+
+        score.UpdateScore();
         Debug.Log(score + "Score Multiplied");
     }
 
@@ -69,17 +76,25 @@ public class GameManager : MonoBehaviour
         // Check if the CPU paddle exists and is currently in the regular direction (0)
         if (CPUPaddle && plyrPaddle != null)
         {
-            int randomNumSwap = Random.Range(0, 2);
+            // Roll between 0 and 1 to pick the target player
+            // 0 = player, 1 = CPU            
+            int targetPlayerId = Random.Range(0, 2);
 
-            if (randomNumSwap == 1)
+            if (targetPlayerId == 0)
             {
-                CPUPaddle.paddleDir = 1;
+                //Invert player paddle dir
+                plyrPaddle.paddleDir = 1;
+                CPUPaddle.paddleDir = 0;
+                Debug.Log("Your controls are inverted");
+            }
+            else if (targetPlayerId == 1)
+            {
+                CPUPaddle.paddleDir = 0;
                 plyrPaddle.paddleDir = 1;
                 // Invert the paddle direction
-                Debug.Log("Paddle Direction Swapped");
+                Debug.Log("CPU's controls are inverted");
             }
         }
-
     }
 
     public void SwapBallDirection()

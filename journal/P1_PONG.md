@@ -68,3 +68,10 @@ Other considerations:
 Added many methods to control the different types of interference. I may have gone a bit overboard but I do feel like I;ve reached a solid point where I've built the base of what I imagined for Interference Pong.
 
 So far my focus has been on the features of swapping the direction of moving objects, resetting objects/score, reversing the logic of the paddles for both player and CPU. Finally, I'm working on a driver class called the InterferenceManager controlled by a randomized timer which at certain point uses a random range to choose which case of interference will occur and for how long.
+
+----------
+19:00
+
+Found out it was immpossible for the human player to actually score bc the Right court had: Box Collider2d: is Trigger was checked so I unchecked it and now it works...
+
+I'm actually already close to being at the point where I no longer need to focus on the gameplay and could possibly explore some different appearance changes, provided I have the time and don't run into too many bugs. I believe Interference Pong's concept and implementation is already strong so I may not.
