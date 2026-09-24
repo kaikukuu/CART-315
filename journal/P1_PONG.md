@@ -83,4 +83,6 @@ I'm actually already close to being at the point where I no longer need to focus
     - Adjust score multiplication logic -> only double?
     - Change speed of ball
     - Paddle speed 
-    - Move notifications from console-only to show up on game screen 
+0:47
+
+I made a lot of finishing touches to Interference Pong and it seems to have come together well. It's pretty much still my introduction to Unity and writing in C#, although I have lots of experience in other OOP languages like Java and C++ which informs my choices in how I decided to design the methods and Inteference Manager. I keep getting the itch to delve further in customizating assets and the appearance of the game but I'm holding myself back in order to focus on the implementation of features first. I love to be creative with visuals but I really want to challenge myself to start from the foundation (the program) rather than the appearance (assets and visual design). I tend to get ahead of myself when I'm excited and I delve into complex projects too quickly not taking the time to plan. This project has eessentially been an exercise in ignoring my need to make everything super nice looking and polished (aka my perfectionism rearing its head). By submitting this project in the state it is currently in wihout many outward chnages it highlights the gameplay changes not visible until the game is played and experienced. 
