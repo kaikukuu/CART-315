@@ -34,4 +34,9 @@ public class Ball : MonoBehaviour
     {
         _rigidBody.linearVelocity = new Vector2(-_rigidBody.linearVelocity.x, -_rigidBody.linearVelocity.y);
     }
+
+    public void ResetBallSpeed()
+    {
+        _rigidBody.linearVelocity = _rigidBody.linearVelocity.normalized * speed;
+    }
 }
