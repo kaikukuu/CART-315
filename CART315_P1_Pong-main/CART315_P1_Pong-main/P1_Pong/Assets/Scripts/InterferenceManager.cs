@@ -27,7 +27,7 @@ public class InterferenceManager : MonoBehaviour
             ResetTimer();
         }
     }
-
+    // Resets the timer to a random value between minTime and maxTime
     private void ResetTimer()
     {
         timer = Random.Range(minTime, maxTime);
@@ -36,11 +36,12 @@ public class InterferenceManager : MonoBehaviour
     private void TriggerRandomInterference()
     {
         if (gameManager == null) return;
-        int triggeredEvent = Random.Range(0, 6); // Randomly choose an interference event
+        int triggeredEvent = Random.Range(0, 8); // Randomly choose an interference event
         switch (triggeredEvent)
         {
             case 0:
                 gameManager.SwapBallDirection();
+
                 break;
             case 1:
                 gameManager.ScoreMultiplier();
@@ -49,13 +50,18 @@ public class InterferenceManager : MonoBehaviour
                 gameManager.SwapScores();
                 break;
             case 3:
-                gameManager.SwapBallDirection();
-                break;
-            case 4:
-                gameManager.ResetScore();
                 break;
             case 5:
                 gameManager.SwapPaddleDirection();
+                // Reset paddle direction to normal at the start of the next round
+                break;
+            case 6:
+                gameManager.TurboBoostBall();
+                // After timer, reset ball speed to normal
+                break;
+            case 7:
+                gameManager.FreezePaddle();
+                // After timer, unfreeze paddle
                 break;
 
 

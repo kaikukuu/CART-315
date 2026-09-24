@@ -75,3 +75,12 @@ So far my focus has been on the features of swapping the direction of moving obj
 Found out it was immpossible for the human player to actually score bc the Right court had: Box Collider2d: is Trigger was checked so I unchecked it and now it works...
 
 I'm actually already close to being at the point where I no longer need to focus on the gameplay and could possibly explore some different appearance changes, provided I have the time and don't run into too many bugs. I believe Interference Pong's concept and implementation is already strong so I may not.
+
+----------------
+2026-09-23 22:00
+
+-> To do this session:
+    - Adjust score multiplication logic -> only double?
+    - Change speed of ball
+    - Paddle speed 
+    - Move notifications from console-only to show up on game screen 
