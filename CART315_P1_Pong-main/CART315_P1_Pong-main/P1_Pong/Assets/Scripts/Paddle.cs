@@ -10,6 +10,9 @@ public class Paddle : MonoBehaviour
     public float speed = 10.0f;
 
     public Vector2 direction;
+    public bool isFrozen;
+    public bool isInverted;
+
 
     private void Awake()
     {
@@ -22,5 +25,21 @@ public class Paddle : MonoBehaviour
         if (direction.sqrMagnitude == 0) return;
 
         _rigidBody.AddForce(direction * speed);
+    }
+
+    public void Update()
+    {
+        if (isFrozen)
+        {
+            _rigidBody.linearVelocity = Vector2.zero;
+        }
+        else if (isInverted)
+        {
+            _rigidBody.linearVelocity = -_rigidBody.linearVelocity;
+        }
+        else
+        {
+            // normal behavior, do nothing
+        }
     }
 }

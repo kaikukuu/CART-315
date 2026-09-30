@@ -35,8 +35,15 @@ public class GameManager : MonoBehaviour
         ResetActiveInterferenceEffects();
 
         // Clears any prev vals
-        if (CPUPaddle != null) CPUPaddle.paddleDir = 0;
-        if (plyrPaddle != null) plyrPaddle.paddleDir = 0;
+        if (CPUPaddle != null)
+        {
+            CPUPaddle.isFrozen = false;
+            CPUPaddle.isInverted = false;
+        }
+        if (plyrPaddle != null)
+        {
+            plyrPaddle.isInverted = false;
+        }
         ball.ResetBall();
         ball.AddStartingForce();
     }
@@ -101,14 +108,13 @@ public class GameManager : MonoBehaviour
             if (targetPlayerId == 0)
             {
                 //Invert player paddle dir
-                plyrPaddle.paddleDir = 1;
-                CPUPaddle.paddleDir = 0;
+                plyrPaddle.isInverted = true;
                 Notify("Your controls are inverted");
             }
             else if (targetPlayerId == 1)
             {
-                CPUPaddle.paddleDir = 0;
-                plyrPaddle.paddleDir = 1;
+
+                CPUPaddle.isInverted = true;
                 Notify("CPU's controls are inverted");
             }
         }
@@ -117,8 +123,8 @@ public class GameManager : MonoBehaviour
     // REset paddle direction to normal (0)
     public void ResetPaddleDirection()
     {
-        if (CPUPaddle != null) CPUPaddle.paddleDir = 0;
-        if (plyrPaddle != null) plyrPaddle.paddleDir = 0;
+        if (CPUPaddle != null) CPUPaddle.isInverted = false;
+        if (plyrPaddle != null) plyrPaddle.isInverted = false;
         Notify("Paddle direction reset to normal");
     }
 
@@ -130,7 +136,6 @@ public class GameManager : MonoBehaviour
 
     public void FreezePaddle()
     {
-        paddleFrozen = true;
 
         // Roll between 0 and 1 to pick the target player
         // 0 = player, 1 = CPU            
@@ -138,21 +143,24 @@ public class GameManager : MonoBehaviour
 
         if (targetPlayerId == 0)
         {
-            plyrPaddle.paddleDir = 0; // Freeze player paddle
+            paddleFrozen = true;
+            // Freeze player paddle
+            plyrPaddle.isFrozen = true;
             Notify("Player paddle frozen");
         }
         else
         {
-            CPUPaddle.paddleDir = 0; // Freeze CPU paddle
+            paddleFrozen = true;
+            CPUPaddle.isFrozen = true; // Freeze CPU paddle
             Notify("CPU paddle frozen");
         }
     }
 
     public void UnfreezePaddle()
     {
-        // Reset paddle direction to normal (0)
-        if (plyrPaddle != null) plyrPaddle.paddleDir = 0;
-        if (CPUPaddle != null) CPUPaddle.paddleDir = 0;
+        // 
+        if (plyrPaddle != null) plyrPaddle.isFrozen = false;
+        if (CPUPaddle != null) CPUPaddle.isFrozen = false;
         paddleFrozen = false;
         Notify("Paddle unfrozen");
     }
@@ -161,7 +169,7 @@ public class GameManager : MonoBehaviour
     public void TurboBoostBall()
     {
         ballSpeedBoosted = true;
-        ball.speed *= 5; // Double the ball speed
+        ball.AddTurboBoost(boostMultiplier: 2.0f); // Double the ball's speed
         Notify("Ball Turbo Boost");
     }
 
@@ -190,6 +198,15 @@ public class GameManager : MonoBehaviour
         {
             UnfreezePaddle();
         }
+    }
+
+    // Add text to the screen to indicate which interference event was triggered
+
+
+    //Make negative point balls
+    public void negativePointBall()
+    {
+        // Make new instances of the ball and if the ball the paddle hits is the negative point ball, subtract a point from the player who hit it
     }
 
     // Add text to the screen to indicate which interference event was triggered

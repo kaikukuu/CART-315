@@ -86,3 +86,16 @@ I'm actually already close to being at the point where I no longer need to focus
 0:47
 
 I made a lot of finishing touches to Interference Pong and it seems to have come together well. It's pretty much still my introduction to Unity and writing in C#, although I have lots of experience in other OOP languages like Java and C++ which informs my choices in how I decided to design the methods and Inteference Manager. I keep getting the itch to delve further in customizating assets and the appearance of the game but I'm holding myself back in order to focus on the implementation of features first. I love to be creative with visuals but I really want to challenge myself to start from the foundation (the program) rather than the appearance (assets and visual design). I tend to get ahead of myself when I'm excited and I delve into complex projects too quickly not taking the time to plan. This project has eessentially been an exercise in ignoring my need to make everything super nice looking and polished (aka my perfectionism rearing its head). By submitting this project in the state it is currently in wihout many outward chnages it highlights the gameplay changes not visible until the game is played and experienced. 
+
+-----------------------
+2026/09/29 19:30
+
+After replaying my game with my updates I added yesterday with the freezing paddles I realized I'd just left the placeholder methods which was why the console would notify that an effect was implemented but the paddles still move. Anyway, I also realized I hadn't thought about having a game loop with a start and end screen. I also sort of implemented something that prevents the ball from getting stuck in the horizontal motion but I want to actually want to make a proper fix for that.
+
+My next mechanic I want to implement in order to make the game more interesting and challenging is the idea of negative point balls:
+    - suddenly at the start of a new round spawn a few red balls that if you hit with the paddle will 
+    - the hope of uno that you're one card swap away from being the winner (or the loser) 
+
+--------------
+
+FINAL PONG JOURNAL ENTRY:
