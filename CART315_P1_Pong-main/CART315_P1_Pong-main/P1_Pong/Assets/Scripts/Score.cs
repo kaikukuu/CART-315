@@ -24,6 +24,22 @@ public class Score : MonoBehaviour
         UpdateScore();
     }
 
+    // Decrease the score (negative ball interference event)
+    public void DecreaseScore(int playerId)
+    {
+        switch (playerId)
+        {
+            case 0:
+                scorePlayerOne--;
+                break;
+            case 1:
+                scorePlayerTwo--;
+                break;
+        }
+
+        UpdateScore();
+    }
+
     public void ResetScore()
     {
         scorePlayerOne = 0;

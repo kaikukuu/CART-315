@@ -7,8 +7,8 @@ public class InterferenceManager : MonoBehaviour
     public GameManager gameManager;
 
     [Header("Interference Timer Settings")]
-    public float minTime = 5.0f; // Minimum time between interference events
-    public float maxTime = 10.0f; // Maximum time between interference events
+    public float minTime = 3.0f; // Minimum time between interference events
+    public float maxTime = 8.0f; // Maximum time between interference events
     private float timer; // Timer to track events
 
 
@@ -23,7 +23,8 @@ public class InterferenceManager : MonoBehaviour
         timer -= Time.deltaTime;
         if (timer <= 0f)
         {
-            TriggerRandomInterference();
+            TriggerRandomPaddleInterference();
+            TriggerNonPaddleInterference();
             ResetTimer();
         }
     }
@@ -33,15 +34,30 @@ public class InterferenceManager : MonoBehaviour
         timer = Random.Range(minTime, maxTime);
     }
 
-    private void TriggerRandomInterference()
+    private void TriggerRandomPaddleInterference()
     {
         if (gameManager == null) return;
-        int triggeredEvent = Random.Range(0, 8); // Randomly choose an interference event
+        int triggeredEvent = Random.Range(0, 2); // Randomly choose an interference event
+        switch (triggeredEvent)
+        {
+            case 0:
+                gameManager.SwapPaddleDirection();
+                break;
+            case 1:
+                gameManager.FreezePaddle();
+                break;
+
+        }
+    }
+
+    private void TriggerNonPaddleInterference()
+    {
+        if (gameManager == null) return;
+        int triggeredEvent = Random.Range(0, 4); // Randomly choose an interference event
         switch (triggeredEvent)
         {
             case 0:
                 gameManager.SwapBallDirection();
-
                 break;
             case 1:
                 gameManager.ScoreMultiplier();
@@ -50,22 +66,10 @@ public class InterferenceManager : MonoBehaviour
                 gameManager.SwapScores();
                 break;
             case 3:
+                // Randomly generate a boost multiplier between 1.5 and 3.0 to apply to ball speed
+                float boostMultiplier = Random.Range(1.5f, 5.0f);
+                gameManager.TurboBoostBall(boostMultiplier);
                 break;
-            case 5:
-                gameManager.SwapPaddleDirection();
-                // Reset paddle direction to normal at the start of the next round
-                break;
-            case 6:
-                gameManager.TurboBoostBall();
-                // After timer, reset ball speed to normal
-                break;
-            case 7:
-                gameManager.FreezePaddle();
-                // After timer, unfreeze paddle
-                break;
-
-
-
         }
     }
 

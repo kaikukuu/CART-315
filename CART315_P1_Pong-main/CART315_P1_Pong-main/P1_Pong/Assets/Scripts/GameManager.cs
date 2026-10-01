@@ -50,6 +50,17 @@ public class GameManager : MonoBehaviour
 
     public void CourtTriggered(int courtId)
     {
+        // if (negativePointBallActive)
+        // {
+        //     score.DecreaseScore((courtId == 0 ? 1 : 0)); //If left court was triggered, right player loses a point & vice versa
+        //     Notify("Negative Point Ball Scored!");
+        //     negativePointBallActive = false; // Reset the flag after scoring
+        // }
+        // else
+        // {
+        //     score.IncreaseScore((courtId == 0 ? 1 : 0)); //If left court was triggered, right player scores & vice versa
+        //     StartRound();
+        // }
         score.IncreaseScore((courtId == 0 ? 1 : 0)); //If left court was triggered, right player scores & vice versa
         StartRound();
     }
@@ -165,12 +176,12 @@ public class GameManager : MonoBehaviour
         Notify("Paddle unfrozen");
     }
 
-    // Adds a turbo boost to the ball's current velocity
-    public void TurboBoostBall()
+    //Adds a turbo boost to the ball's current velocity
+    public void TurboBoostBall(float boostMultiplier)
     {
         ballSpeedBoosted = true;
-        ball.AddTurboBoost(boostMultiplier: 2.0f); // Double the ball's speed
-        Notify("Ball Turbo Boost");
+        ball.AddTurboBoost(boostMultiplier);
+        Notify("Ball Turbo Boosted");
     }
 
     public void ResetBallSpeed()
@@ -200,14 +211,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Add text to the screen to indicate which interference event was triggered
-
-
     //Make negative point balls
-    public void negativePointBall()
-    {
-        // Make new instances of the ball and if the ball the paddle hits is the negative point ball, subtract a point from the player who hit it
-    }
+    // public void negativePointBall()
+    // {
+    //     // Change the ball's color to red to indicate it's a negative point ball
+    //     ball.GetComponent<SpriteRenderer>().color = Color.red;
+    //     negativePointBallActive = true;
+    //     Notify("Negative Point Ball Activated");
+    // }
 
     // Add text to the screen to indicate which interference event was triggered
     public void Notify(string eventName)
