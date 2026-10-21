@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D))]
 public class Brick : MonoBehaviour
@@ -30,18 +30,29 @@ public class Brick : MonoBehaviour
             spriteRenderer.sprite = states[health - 1];
         }
     }
+    public void FlashBrick()
+    {
+        // turn on and off the spcific indicated brick to indicate itself as the next in the pattern
+        //repeat until all the steps in the pattern have been shown
+        //then indicate the player's turn
+        //use predetermined flashing patterns for each level of the game    
+    }
 
     private void Hit()
     {
-        if (unbreakable) {
+        if (unbreakable)
+        {
             return;
         }
 
         health--;
 
-        if (health <= 0) {
+        if (health <= 0)
+        {
             gameObject.SetActive(false);
-        } else {
+        }
+        else
+        {
             spriteRenderer.sprite = states[health - 1];
         }
 
@@ -50,7 +61,8 @@ public class Brick : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.name == "Ball") {
+        if (collision.gameObject.name == "Ball")
+        {
             Hit();
         }
     }

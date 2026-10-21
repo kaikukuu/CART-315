@@ -6,21 +6,24 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    private const int NUM_LEVELS = 2;
-
-    private Ball ball;
-    private Paddle paddle;
+    private const int NUM_LEVELS = 6;
     private Brick[] bricks;
 
+    private Buttons buttons;
+    // boolean to set the state of bricks between diplaying or reading input
+    private bool isPaused = true;
+
     public int level { get; private set; } = 1;
-    public int score { get; private set; } = 0;
     public int lives { get; private set; } = 3;
 
     private void Awake()
     {
-        if (Instance != null) {
+        if (Instance != null)
+        {
             DestroyImmediate(gameObject);
-        } else {
+        }
+        else
+        {
             Instance = this;
             DontDestroyOnLoad(gameObject);
             FindSceneReferences();
@@ -29,16 +32,16 @@ public class GameManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (Instance == this) {
+        if (Instance == this)
+        {
             Instance = null;
         }
     }
 
     private void FindSceneReferences()
     {
-        ball = FindFirstObjectByType<Ball>();
-        paddle = FindFirstObjectByType<Paddle>();
         bricks = FindObjectsByType<Brick>(FindObjectsSortMode.None);
+        FindObjectsByType<Buttons>(FindObjectsSortMode.None)
     }
 
     private void LoadLevel(int levelId)
@@ -63,21 +66,23 @@ public class GameManager : MonoBehaviour
         FindSceneReferences();
     }
 
-    public void OnBallMiss()
+    public void OnIncorrectPlayerInput()
     {
         lives--;
 
-        if (lives > 0) {
+        if (lives > 0)
+        {
             ResetLevel();
-        } else {
+        }
+        else
+        {
             GameOver();
         }
     }
 
     private void ResetLevel()
     {
-        paddle.ResetPaddle();
-        ball.ResetBall();
+        
     }
 
     private void GameOver()
@@ -89,29 +94,23 @@ public class GameManager : MonoBehaviour
 
     private void NewGame()
     {
-        score = 0;
         lives = 3;
 
         LoadLevel(1);
     }
 
-    public void OnBrickHit(Brick brick)
+    public void OnButtonHit(Buttons buttons)
     {
-        score += brick.points;
+        // score += brick.points;
 
-        if (Cleared()) {
+        if (Cleared())
+        {
             LoadLevel(level + 1);
         }
     }
 
     private bool Cleared()
     {
-        for (int i = 0; i < bricks.Length; i++)
-        {
-            if (bricks[i].gameObject.activeInHierarchy && !bricks[i].unbreakable) {
-                return false;
-            }
-        }
 
         return true;
     }
