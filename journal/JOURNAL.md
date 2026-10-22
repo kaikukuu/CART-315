@@ -1,3 +1,37 @@
+P2 JOURNAL 
+2026-10-22
+
+For some reason I really had a difficult time starting off this second prototype. My initial problem was that I had been really sick over the reading week which left me exhausted and incredibly uncreative so I kept putting off working on it. I kept thinking "I'll start when I feel inspired" but that moment never really hit. Finally, I was out of time and despite pages of brainstorming I knew I just had to start actually trying different paths. While exploring the three initial games and playing through them to obverve their behaviour I was particularily caught by the appearance of the bricks in the brick breaker game. It reminded me first of a kids xylophone initially so I thought about adapting the game to be musical in some way. The idea began as as game where the player is shown specific brick patterns and have to try to hit the bricks in the correct order and beat by bouncing the ball off the paddle. however I found this to be far too challenging and I got stuck again. So I began to wrack my brain for any solutions. What I ended up coming up with was that I would completely get rid of the ball, paddle and their collision logic. I exhange it for control buttons for the player to select a column and the color indicates how many times the column button needs to be pressed. This choice was inspired by the maps provided in the rythmn game Quaver: https://store.steampowered.com/app/980610/Quaver/ and "la piece de resistance", the Simon Swipe Game Device by Hasbro: https://instructions.hasbro.com/en-ca/instruction/simon-swipe-game  
+Demo of inspo game: https://www.youtube.com/watch?v=AcnlVGqEoj8
+
+
+At first I wanted the tiles light up in patterns and player must bounce ball off the right bricks shown in the order but as I said this was too upredictable and I was having issues with manipulating the brick sprites colors. and I couldn't get the ball hitting the paddle angles to be consistent enough to be able to make any game progress as a player so I initially tried to research splines and putting the paddle on a curved path then trying to see if I could curve the paddle since I wanted to mimic the circle imagery of the Simon Swipe. Turns out there was a pretty simple solution to not being able to hightlight bricks: just to toggle them and indicating which button the player is selecting by making the button change size to indicate being selected/unselected. 
+
+
+I felt so stuck at the beginning and had so much on my mind that I didn't have the mindspace to come up with a topic that i felt would be succesful and mesh well with the base game for the brick breaking game. This whole prototype has been a challenge and I ended up nearly gutting all of the brick breaker base game. This wasn't the best idea when you're running low on time... My next steps were to have fewer bricks so remembering a pattern won't be too overwhelming from the start. I wanted to keep the lvls having their own maps but wanted to make different patterns as sub levels.
+One big thing I needed to figure out was how I would format the brick light patterns so they can be easily displayed and used to validate the player's response. I outlined what would be in the first level as the following:
+
+lvl1:
+
+blue(b) brick: 1 click
+gree(g): 2 clicks
+yellow: 3 clicks
+
+experiemental patterns: 
+1.1: b1,b2,b3,b4,b5
+1.2: b1,b2,b3,b4,b5,g1,g2,g3,g4,g5
+
+playthru logic for game:
+-> the tiles all light up once in a pattern
+-> when the pattern is done it's the player's turn to repeat the pattern using the arrows L-R to move to the correct column's button then repeat the pattern by pressing the correct number of times for the tile's color and in the correct order 
+
+-Remove: ball, paddle and resetzone
+brick.cs: edit or maybe discard most, bricks will be separate from buttons, logic for lighting up patterns buttons.cs
+
+My remaining thoughts include how can I change the rest of the game code to change this from a brick breaker game to a "simon-says" pattern call and response game. the unbreakable "bricks" are now buttons that the player uses to repeat back the pattern displayed on the bricks at the start of each sublvl. The player uses the right and left keys to switch between the buttons (columns) and press the space bar the correct number of times according to its color. I want the bricks to stay up in the same positions throughout lvl 1 then updates at lvl 2. The sublvls should use the same map but different patterns that escalate in difficulty. any logic from the brick breaker that wouldn't be useful can be overriden. In the end I really wish I had tried to jump in and just experiment sooner since I do like the concept I ended up coming up with for this prototype. It would have been nice to have given myself some more time to properly accomplish my goals and better demonstrate my ideas. Unfortunately, being ill took a big toll and I should have been better prepared. Good thing is that I hope not to put myself in this position going forward.
+
+---------------------------------------------------------
+
 P1 PONG JOURNAL
 2026-19-30 10:30PM
 
