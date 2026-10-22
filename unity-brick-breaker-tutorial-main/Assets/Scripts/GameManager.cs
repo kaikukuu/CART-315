@@ -10,9 +10,6 @@ public class GameManager : MonoBehaviour
     private Brick[] bricks;
 
     private Buttons buttons;
-    // boolean to set the state of bricks between diplaying or reading input
-    private bool isPaused = true;
-
     public int level { get; private set; } = 1;
     public int lives { get; private set; } = 3;
 
@@ -41,7 +38,22 @@ public class GameManager : MonoBehaviour
     private void FindSceneReferences()
     {
         bricks = FindObjectsByType<Brick>(FindObjectsSortMode.None);
-        FindObjectsByType<Buttons>(FindObjectsSortMode.None)
+        Buttons[] sceneButtons = FindObjectsByType<Buttons>(FindObjectsSortMode.None);
+
+        if (sceneButtons.Length == 1)
+        {
+            buttons = sceneButtons[0];
+        }
+        else if (sceneButtons.Length == 0)
+        {
+            buttons = null;
+            Debug.LogWarning("No Buttons controller was found in the active scene.", this);
+        }
+        else
+        {
+            buttons = null;
+            Debug.LogError($"Expected one Buttons controller in the active scene, but found {sceneButtons.Length}.", this);
+        }
     }
 
     private void LoadLevel(int levelId)
@@ -82,7 +94,13 @@ public class GameManager : MonoBehaviour
 
     private void ResetLevel()
     {
-        
+        if (buttons != null)
+        {
+            buttons.RestartRound();
+            return;
+        }
+
+        Debug.LogError("Cannot restart the pattern because the active scene has no Buttons controller.", this);
     }
 
     private void GameOver()
@@ -101,12 +119,15 @@ public class GameManager : MonoBehaviour
 
     public void OnButtonHit(Buttons buttons)
     {
-        // score += brick.points;
-
         if (Cleared())
         {
             LoadLevel(level + 1);
         }
+    }
+
+    public void OnPatternCompleted()
+    {
+        Debug.Log($"Pattern for level {level} completed. Add the next hard-coded pattern before advancing.", this);
     }
 
     private bool Cleared()

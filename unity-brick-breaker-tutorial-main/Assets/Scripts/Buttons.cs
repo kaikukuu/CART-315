@@ -1,12 +1,10 @@
-using NUnit.Framework.Constraints;
+using System.Collections;
 using UnityEngine;
 
 public class Buttons : MonoBehaviour
 {
-
     public enum ButtonColor
     {
-        Gray = 0,
         Blue = 1,
         Green = 2,
         Yellow = 3,
@@ -21,102 +19,256 @@ public class Buttons : MonoBehaviour
         C3,
         C4,
         C5
-
+    }
+    public enum ButtonRow
+    {
+        // R1 is the bottom row and R3 is the top row
+        R1,
+        R2,
+        R3
     }
 
-    //example input and output
-    // after the initial animation of the pattern the player would input which uses Buttons(pattern) where pattern is in the form 
-    //pattern 1={(1,C1),(1,C2),(1,C3),(1,C4),(1,C5)}, the first level checks for 5 pairs of input to validate that the pattern is correct
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [System.Serializable]
+    public struct PatternStep
     {
-
+        public ButtonColor color;
+        public ButtonColumn column;
+        public ButtonRow row;
     }
 
-    // Update is called once per frame
-    void Update()
+    private const int ColumnCount = 5;
+    private const int RowCount = 3;
+
+    [Header("Tiles: C1-R1, C1-R2, C1-R3, then C2-R1 through C5-R3")]
+    [SerializeField] private Brick[] gridTiles = new Brick[ColumnCount * RowCount];
+
+    [Header("Button visuals: assign C1 through C5 in order")]
+    [SerializeField] private Transform[] columnButtonVisuals = new Transform[ColumnCount];
+
+    [SerializeField, Min(1f)] private float selectedScaleMultiplier = 1.12f; // scale multiplier for the selected column button visual
+    [SerializeField, Min(0.05f)] private float tileFlashDuration = 0.6f; // duration for which a tile flashes when activated
+    [SerializeField, Min(0f)] private float delayBetweenSteps = 0.5f;
+
+    // Each step specifies how many times Space is pressed, the selected column, and the tile to flash.
+    private readonly PatternStep[] pattern =
     {
+        new PatternStep { color = ButtonColor.Blue, column = ButtonColumn.C1, row = ButtonRow.R1 },
+        new PatternStep { color = ButtonColor.Green, column = ButtonColumn.C2, row = ButtonRow.R2 },
+        new PatternStep { color = ButtonColor.Yellow, column = ButtonColumn.C3, row = ButtonRow.R3 },
+        new PatternStep { color = ButtonColor.Orange, column = ButtonColumn.C4, row = ButtonRow.R1 },
+        new PatternStep { color = ButtonColor.Red, column = ButtonColumn.C5, row = ButtonRow.R2 }
+    };
 
-    }
+    private readonly Vector3[] originalButtonScales = new Vector3[ColumnCount];
+    private int currentStep;
+    private int spacePresses;
+    private ButtonColumn selectedColumn = ButtonColumn.C1;
+    private bool acceptingInput;
+    private Coroutine patternCoroutine; // Coroutine reference to manage the pattern playback coroutine
 
-    // Brick color and column determines the button that is pressed and the number of times it needs to be pressed
-    // This script will handle the logic for each button press and update the game state accordingly
-
-    public void OnButtonPress(string buttonColor, string buttonColumn)
+    private void Start()
     {
-        // enums to represent the button colors and columns
-
-        switch (buttonColor)
+        if (!ValidateSceneReferences())
         {
-            case "Blue":
-                // handle blue button press
-                break;
-            case "Green":
-                // handle green button press
-                break;
-            case "Yellow":
-                // handle yellow button press
-                break;
-            case "Orange":
-                // handle orange button press
-                break;
-            case "Red":
-                // handle red button press
-                break;
-            default:
-                Debug.LogWarning("Unknown button color: " + buttonColor);
-                break;
+            // Disable the Buttons controller if the scene references are not valid to prevent further errors
+            enabled = false;
+            return;
         }
 
-        switch (buttonColumn)
-        {
-            case "C1":
-                // handle column 1 button press
-                break;
-            case "C2":
-                // handle column 2 button press
-                break;
-            case "C3":
-                // handle column 3 button press
-                break;
-            case "C4":
-                // handle column 4 button press
-                break;
-            case "C5":
-                // handle column 5 button press
-                break;
-            default:
-                Debug.LogWarning("Unknown button column: " + buttonColumn);
-                break;
-        }
-
-        private void activatePlayerButtons()
-    {
-        //onResetGame()
-        // start on /c1(leftmost)
-        // the outline of the selected button is thicker
-        //there are 5 buttons and 5 columns
-        // brickObject Button1 is sellected by looping  thru the buttons and corresponds to column 1 C1 by using the a and d keys respectively
-        // then check that the number of clicks of the space bar key correspond to its color
-        //for simplicity's sake currently all of the columns are in ascending order of thei number of clicks
-
+        CacheOriginalScales();
+        UpdateSelectionVisual();
+        RestartRound();
     }
-    public void PlayerColumnSelect()
-    {
 
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+    private void Update()
+    {
+        // Only accept input if the game is currently accepting it
+        if (!acceptingInput)
+            return;
+        // Handle player input for moving the selected column and counting Space presses
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            
+            MoveColumn(-1); // move left
         }
-        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
-            
+            MoveColumn(1); // move right
         }
-      
+        else if (Input.GetKeyDown(KeyCode.Space)) // count Space presses for the current step
+        {
+            CountPress();
+        }
     }
-    
+
+    private bool ValidateSceneReferences()
+    {
+        // Ensure that there is exactly one Buttons controller in the scene and that all required references are assigned correctly
+        Buttons[] sceneControllers = FindObjectsByType<Buttons>(FindObjectsSortMode.None);
+        if (sceneControllers.Length != 1)
+        {
+            Debug.LogError($"The scene must contain exactly one Buttons controller. Found {sceneControllers.Length}.", this);
+            return false;
+        }
+
+        if (gridTiles == null || gridTiles.Length != ColumnCount * RowCount)
+        {
+            Debug.LogError($"Set Grid Tiles to exactly {ColumnCount * RowCount} items in the Inspector.", this);
+            return false;
+        }
+
+        for (int i = 0; i < gridTiles.Length; i++)
+        {
+            if (gridTiles[i] == null)
+            {
+                int column = i / RowCount + 1;
+                int row = i % RowCount + 1;
+                Debug.LogError($"Assign tile C{column}-R{row} to Grid Tiles, item {i}.", this);
+                return false;
+            }
+        }
+
+        if (columnButtonVisuals == null || columnButtonVisuals.Length != ColumnCount)
+        {
+            Debug.LogError($"Set Column Button Visuals to exactly {ColumnCount} items in the Inspector.", this);
+            return false;
+        }
+
+        for (int i = 0; i < columnButtonVisuals.Length; i++)
+        {
+            if (columnButtonVisuals[i] == null)
+            {
+                Debug.LogError($"Assign the C{i + 1} button visual to Column Button Visuals, item {i}.", this);
+                return false;
+            }
+        }
+
+        return true;
+    }
+    // Saves original scales to restore the button visuals after scaling them for selection
+    private void CacheOriginalScales()
+    {
+        for (int i = 0; i < columnButtonVisuals.Length; i++)
+            originalButtonScales[i] = columnButtonVisuals[i].localScale;
+    }
+
+    // Updates the visual representation of the selected column by scaling the corresponding button visual
+    private void UpdateSelectionVisual()
+    {
+        for (int i = 0; i < columnButtonVisuals.Length; i++)
+        {
+            float multiplier = i == (int)selectedColumn ? selectedScaleMultiplier : 1f;
+            columnButtonVisuals[i].localScale = originalButtonScales[i] * multiplier;
+        }
+    }
+
+    // Moves the selected column left or right based on the input direction
+    private void MoveColumn(int direction)
+    {
+        // Clamp the selected column to ensure it stays within the valid range of columns
+        int nextColumn = Mathf.Clamp((int)selectedColumn + direction, 0, ColumnCount - 1);
+        selectedColumn = (ButtonColumn)nextColumn;
+        UpdateSelectionVisual();
+    }
+
+    // Count the number of Space presses and check if the player's input matches the expected pattern step
+    private void CountPress()
+    {
+        PatternStep expected = pattern[currentStep];
+        spacePresses++;
+
+        if (spacePresses == (int)expected.color)
+        {
+            if (selectedColumn != expected.column)
+            {
+                HandleIncorrectInput();
+                return;
+            }
+
+            acceptingInput = false;
+            StartCoroutine(ConfirmCorrectStep(expected));
+        }
+    }
+    // Confirm that the player's input for the current step is correct, flash the corresponding tile, and proceed to the next step or complete the pattern
+    private IEnumerator ConfirmCorrectStep(PatternStep step)
+    {
+        int acceptedStep = currentStep + 1;
+        Debug.Log($"Correct input: step {acceptedStep}/{pattern.Length} ({step.color}, {step.column}, {step.row}).", this);
+
+        Brick tile = gridTiles[GetGridIndex(step.column, step.row)];
+        yield return StartCoroutine(tile.Flash(tileFlashDuration));
+
+        currentStep++;
+        spacePresses = 0;
+
+        if (currentStep == pattern.Length)
+        {
+            HandlePatternComplete();
+            yield break;
+        }
+
+        acceptingInput = true;
+        Debug.Log($"Step {acceptedStep} accepted. Continue with step {currentStep + 1}.", this);
+    }
+
+    private int GetGridIndex(ButtonColumn column, ButtonRow row)
+    {
+        // The array stores all three rows of C1, then all three rows of C2, and so on.
+        return (int)column * RowCount + (int)row;
+    }
+    // Play the pattern, then allow player input after the sequence is shown.
+    private IEnumerator PlayPattern()
+    {
+        acceptingInput = false;
+        currentStep = 0;
+        spacePresses = 0;
+        selectedColumn = ButtonColumn.C1;
+        UpdateSelectionVisual();
+
+        foreach (PatternStep step in pattern)
+        {
+            Brick tile = gridTiles[GetGridIndex(step.column, step.row)];
+            yield return StartCoroutine(tile.Flash(tileFlashDuration));
+
+            if (delayBetweenSteps > 0f)
+                yield return new WaitForSeconds(delayBetweenSteps);
+        }
+
+        acceptingInput = true;
+        patternCoroutine = null;
+        Debug.Log("Pattern playback complete. Enter the sequence with A/D or R/L arrows and Space.", this);
+    }
+    // Restart the round by stopping any ongoing pattern playback and starting the pattern playback coroutine again
+    public void RestartRound()
+    {
+        if (patternCoroutine != null)
+            StopCoroutine(patternCoroutine);
+
+        acceptingInput = false;
+        patternCoroutine = StartCoroutine(PlayPattern());
+    }
+
+    // Handle the case when the player inputs an incorrect pattern step, stop accepting input, and notify the GameManager of the incorrect input
+    private void HandleIncorrectInput()
+    {
+        acceptingInput = false;
+        Debug.LogWarning("Incorrect pattern input.", this);
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnIncorrectPlayerInput();
+        }
+        else
+        {
+            RestartRound();
+        }
+    }
+    // Handle the completion of the pattern by stopping input and notifying the GameManager that the pattern has been completed
+    private void HandlePatternComplete()
+    {
+        acceptingInput = false;
+        Debug.Log("Pattern complete!", this);
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnPatternCompleted();
     }
 }
-
-
