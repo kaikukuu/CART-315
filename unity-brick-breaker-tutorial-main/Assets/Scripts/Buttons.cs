@@ -50,16 +50,28 @@ public class Buttons : MonoBehaviour
     [SerializeField, Min(0f)] private float delayBetweenSteps = 0.5f;
 
     // Each step specifies how many times Space is pressed, the selected column, and the tile to flash.
-    private readonly PatternStep[] pattern =
+    private readonly PatternStep[][] patterns =
     {
-        new PatternStep { color = ButtonColor.Blue, column = ButtonColumn.C1, row = ButtonRow.R1 },
-        new PatternStep { color = ButtonColor.Green, column = ButtonColumn.C2, row = ButtonRow.R2 },
-        new PatternStep { color = ButtonColor.Yellow, column = ButtonColumn.C3, row = ButtonRow.R3 },
-        new PatternStep { color = ButtonColor.Orange, column = ButtonColumn.C4, row = ButtonRow.R1 },
-        new PatternStep { color = ButtonColor.Red, column = ButtonColumn.C5, row = ButtonRow.R2 }
+        new[]
+        {
+            new PatternStep { color = ButtonColor.Blue, column = ButtonColumn.C1, row = ButtonRow.R1 },
+            new PatternStep { color = ButtonColor.Green, column = ButtonColumn.C2, row = ButtonRow.R2 },
+            new PatternStep { color = ButtonColor.Yellow, column = ButtonColumn.C3, row = ButtonRow.R3 },
+            new PatternStep { color = ButtonColor.Blue, column = ButtonColumn.C4, row = ButtonRow.R1 },
+            new PatternStep { color = ButtonColor.Green, column = ButtonColumn.C5, row = ButtonRow.R2 }
+        },
+        new[]
+        {
+            new PatternStep { color = ButtonColor.Blue, column = ButtonColumn.C5, row = ButtonRow.R1 },
+            new PatternStep { color = ButtonColor.Green, column = ButtonColumn.C4, row = ButtonRow.R2 },
+            new PatternStep { color = ButtonColor.Yellow, column = ButtonColumn.C3, row = ButtonRow.R3 },
+            new PatternStep { color = ButtonColor.Green, column = ButtonColumn.C2, row = ButtonRow.R2 },
+            new PatternStep { color = ButtonColor.Yellow, column = ButtonColumn.C1, row = ButtonRow.R3 }
+        }
     };
 
     private readonly Vector3[] originalButtonScales = new Vector3[ColumnCount];
+    private int currentPatternIndex;
     private int currentStep;
     private int spacePresses;
     private ButtonColumn selectedColumn = ButtonColumn.C1;
@@ -173,6 +185,7 @@ public class Buttons : MonoBehaviour
     // Count the number of Space presses and check if the player's input matches the expected pattern step
     private void CountPress()
     {
+        PatternStep[] pattern = patterns[currentPatternIndex];
         PatternStep expected = pattern[currentStep];
         spacePresses++;
 
@@ -191,8 +204,9 @@ public class Buttons : MonoBehaviour
     // Confirm that the player's input for the current step is correct, flash the corresponding tile, and proceed to the next step or complete the pattern
     private IEnumerator ConfirmCorrectStep(PatternStep step)
     {
+        PatternStep[] pattern = patterns[currentPatternIndex];
         int acceptedStep = currentStep + 1;
-        Debug.Log($"Correct input: step {acceptedStep}/{pattern.Length} ({step.color}, {step.column}, {step.row}).", this);
+        Debug.Log($"Correct input: pattern {currentPatternIndex + 1}, step {acceptedStep}/{pattern.Length} ({step.color}, {step.column}, {step.row}).", this);
 
         Brick tile = gridTiles[GetGridIndex(step.column, step.row)];
         yield return StartCoroutine(tile.Flash(tileFlashDuration));
@@ -218,6 +232,7 @@ public class Buttons : MonoBehaviour
     // Play the pattern, then allow player input after the sequence is shown.
     private IEnumerator PlayPattern()
     {
+        PatternStep[] pattern = patterns[currentPatternIndex];
         acceptingInput = false;
         currentStep = 0;
         spacePresses = 0;
@@ -236,6 +251,14 @@ public class Buttons : MonoBehaviour
         acceptingInput = true;
         patternCoroutine = null;
         Debug.Log("Pattern playback complete. Enter the sequence with A/D or R/L arrows and Space.", this);
+    }
+
+    private IEnumerator PlayNextPattern()
+    {
+        if (delayBetweenSteps > 0f)
+            yield return new WaitForSeconds(delayBetweenSteps);
+
+        yield return StartCoroutine(PlayPattern());
     }
     // Restart the round by stopping any ongoing pattern playback and starting the pattern playback coroutine again
     public void RestartRound()
@@ -266,9 +289,16 @@ public class Buttons : MonoBehaviour
     private void HandlePatternComplete()
     {
         acceptingInput = false;
-        Debug.Log("Pattern complete!", this);
+        Debug.Log($"Pattern {currentPatternIndex + 1} complete!", this);
 
-        if (GameManager.Instance != null)
+        if (currentPatternIndex + 1 < patterns.Length)
+        {
+            currentPatternIndex++;
+            patternCoroutine = StartCoroutine(PlayNextPattern());
+        }
+        else if (GameManager.Instance != null)
+        {
             GameManager.Instance.OnPatternCompleted();
+        }
     }
 }

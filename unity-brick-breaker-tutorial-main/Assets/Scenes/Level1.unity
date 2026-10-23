@@ -1795,8 +1795,8 @@ MonoBehaviour:
   - {fileID: 1948857041}
   - {fileID: 2027056004}
   selectedScaleMultiplier: 1.12
-  tileFlashDuration: 0.45
-  delayBetweenSteps: 0.2
+  tileFlashDuration: 1.5
+  delayBetweenSteps: 1
 --- !u!4 &1100668235
 Transform:
   m_ObjectHideFlags: 0
