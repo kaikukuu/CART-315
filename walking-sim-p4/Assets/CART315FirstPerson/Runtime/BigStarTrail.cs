@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Cart315.FirstPerson
 {
-    public class SimpleBigStarTrail : MonoBehaviour
+    public class BigStarTrail : MonoBehaviour
     {
         [Header("Movement")]
         [SerializeField] private Collider _movementArea;
@@ -76,16 +76,30 @@ namespace Cart315.FirstPerson
         private void HandleTrailSpawning()
         {
             if (_trailStarPrefab == null) return;
-
+            // Increment the spawn timer by the time elapsed since the last frame
             _spawnTimer += Time.deltaTime;
-            if (_spawnTimer >= _spawnInterval)
+            if (_spawnTimer >= Mathf.Max(_spawnInterval, 0.01f))
             {
                 _spawnTimer = 0f;
+                // Check if the player has already collected enough stars to reach the goal
+                StarCollectionManager collectionManager = StarCollectionManager.Instance;
+                if (collectionManager.CollectedStars + collectionManager.ActiveSpawnedStars >= collectionManager.Goal)
+                    return;
 
                 // Use the object's built-in backward direction (-transform.forward) to drop the trail item
                 Vector3 spawnPosition = transform.position - (transform.forward * _behindDistance);
 
-                Instantiate(_trailStarPrefab, spawnPosition, _trailStarPrefab.transform.rotation);
+                //Instantiate the trail star prefab at the calculated position and with the same rotation as the prefab
+                GameObject spawnedStar = Instantiate(_trailStarPrefab, spawnPosition, _trailStarPrefab.transform.rotation);
+                StarChime starChime = spawnedStar.GetComponentInChildren<StarChime>();
+                if (starChime == null)
+                {
+                    Debug.LogError("The Big Star trail prefab must contain a StarChime component.", spawnedStar);
+                    Destroy(spawnedStar);
+                    return;
+                }
+
+                collectionManager.RegisterSpawnedStar();
             }
         }
     }

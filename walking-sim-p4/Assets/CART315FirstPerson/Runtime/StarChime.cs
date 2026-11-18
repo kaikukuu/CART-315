@@ -2,50 +2,81 @@ using UnityEngine;
 
 namespace Cart315.FirstPerson
 {
+    public interface IStarAttractable
+    {
+        void BeginAttraction();
+    }
+
     public class StarChime : MonoBehaviour
     {
-        private AudioSource audioSource;
-        private MeshRenderer meshRenderer;
-        private Collider starCollider;
-        private bool hasBeenCollected;
+        private AudioSource _audioSource;
+        private Renderer[] _renderers;
+        private Collider[] _colliders;
+        private bool _hasBeenCollected;
 
-        void Start()
+        public bool IsCollected => _hasBeenCollected;
+
+        private void Awake()
         {
-            audioSource = GetComponent<AudioSource>();
-            meshRenderer = GetComponent<MeshRenderer>();
-            starCollider = GetComponent<Collider>();
+            Rigidbody body = GetComponent<Rigidbody>();
+            if (body == null)
+                body = gameObject.AddComponent<Rigidbody>();
+
+            body.isKinematic = true;
+            body.useGravity = false;
+
+            _audioSource = GetComponent<AudioSource>();
+            _renderers = GetComponentsInChildren<Renderer>();
+            _colliders = GetComponentsInChildren<Collider>();
         }
 
         // When the player runs into a star
         private void OnTriggerEnter(Collider other)
         {
-            // Check if the object running into the star is the Player
-            if (other.CompareTag("Player"))
-                Collect();
+            if (other.GetComponentInParent<FPController>() != null || other.CompareTag("Player"))
+                CollectByPlayer();
         }
 
-        public void Collect()
+        internal void BeginAttraction()
         {
-            if (hasBeenCollected)
-                return;
+            IStarAttractable floating = GetComponent<IStarAttractable>();
+            if (floating != null) floating.BeginAttraction();
+        }
 
-            hasBeenCollected = true;
+        internal void CollectByPlayer()
+        {
+            if (!TryCollect()) return;
+            StarCollectionManager.Instance.RegisterPlayerCollection();
+        }
 
-            if (meshRenderer != null)
-                meshRenderer.enabled = false;
-            if (starCollider != null)
-                starCollider.enabled = false;
+        internal void Consume()
+        {
+            TryCollect();
+        }
 
-            if (audioSource != null && audioSource.clip != null)
+        private bool TryCollect()
+        {
+            if (_hasBeenCollected) return false;
+            _hasBeenCollected = true;
+
+            foreach (Renderer item in _renderers)
+                item.enabled = false;
+            foreach (Collider item in _colliders)
+                item.enabled = false;
+
+            StarCollectionManager.Instance.UnregisterSpawnedStar();
+
+            if (_audioSource != null && _audioSource.clip != null)
             {
-                audioSource.Play();
-                Destroy(gameObject, audioSource.clip.length);
+                _audioSource.Play();
+                Destroy(gameObject, _audioSource.clip.length);
             }
             else
             {
                 Destroy(gameObject);
             }
+
+            return true;
         }
     }
-
 }

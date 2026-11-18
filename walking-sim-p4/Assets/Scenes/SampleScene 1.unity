@@ -23609,6 +23609,7 @@ GameObject:
   - component: {fileID: 1134378245}
   - component: {fileID: 1134378244}
   - component: {fileID: 1134378246}
+  - component: {fileID: 1134378247}
   m_Layer: 0
   m_Name: RedStar
   m_TagString: Untagged
@@ -41994,7 +41995,6 @@ GameObject:
   - component: {fileID: 2025353532}
   - component: {fileID: 2025353531}
   - component: {fileID: 2025353535}
-  - component: {fileID: 2025353536}
   - component: {fileID: 2025353537}
   m_Layer: 0
   m_Name: BigStar
@@ -42193,18 +42193,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &2025353536
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2025353530}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20883229c05a22b4c9582ae4694f64df, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Cart315.FirstPerson::Cart315.FirstPerson.StarChime
 --- !u!114 &2025353537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42222,6 +42210,19 @@ MonoBehaviour:
   _trailStarPrefab: {fileID: 2240879165919234732, guid: dd5e58df4cbc5c24480972a6c33f7cf3, type: 3}
   _spawnInterval: 0.5
   _behindDistance: 0.4
+--- !u!114 &1134378247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1134378238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10c6a9c5d77f43f8b5a14c9204b4de23, type: 3}
+  m_Name: RedStarColorGlow
+  m_EditorClassIdentifier: Cart315.FirstPerson::Cart315.FirstPerson.StarCoreGlow
+  _emissionStrength: 1.5
 --- !u!1001 &2028579753
 PrefabInstance:
   m_ObjectHideFlags: 0
